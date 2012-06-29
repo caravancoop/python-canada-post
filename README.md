@@ -1,2 +1,2 @@
-python-cp-developer-program
+python-canada-post-dev-prog
 ===========================
