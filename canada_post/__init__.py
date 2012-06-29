@@ -12,6 +12,8 @@ PROD = "PROD"
 USERNAME = ""
 PASSWORD = ""
 
+CUSTOMER_NUMBER = ""
+
 class Auth(object):
     def __init__(self, username="", password="", dev=PROD):
         self.USERNAME = {
