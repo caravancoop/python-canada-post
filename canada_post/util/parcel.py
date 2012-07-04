@@ -1,8 +1,9 @@
 """
 Parcel module
 """
+from canada_post.util import InfoObject
 
-class Parcel(object):
+class Parcel(InfoObject):
     """
     Represents a Canada Post parcel. Holds things as dimensions, weight,
     tracking number...
@@ -18,6 +19,4 @@ class Parcel(object):
         self.length = length
         self.width = width
         self.height = height
-        for k, v in kwargs.items():
-            # set any extra kwargs we got
-            setattr(self, k, v)
+        super(Parcel, self).__init__(**kwargs)
