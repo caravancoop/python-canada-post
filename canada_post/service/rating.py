@@ -4,7 +4,7 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/r
 """
 from lxml import etree
 import requests
-from canada_post import (DEV, PROD, CUSTOMER_NUMBER)
+from canada_post import (DEV, PROD, CUSTOMER_NUMBER, DEBUG, USERNAME, PASSWORD)
 
 class GetRates(object):
     URLS = {
