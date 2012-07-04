@@ -51,8 +51,14 @@ class GetRates(object):
         # our XML tree is complete. On to the request
         headers = {
             'Accept': "application/vnd.cpc.ship.rate+xml",
-            'Content-Type': "application/vnd.cpc.ship.rate+xml",
+            'Content-type': "application/vnd.cpc.ship.rate+xml",
             "Accept-language": "en-CA",
         }
 
-        response = requests
+        dev = DEV if DEBUG else PROD
+        url = cls.URLS[dev]
+        request = str(etree.tostring(request_tree, pretty_print=DEBUG))
+        response = requests.post(url, data=request, headers=headers,
+                                 auth=(USERNAME, PASSWORD))
+        return response
+
