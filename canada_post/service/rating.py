@@ -20,18 +20,18 @@ class GetRates(object):
         request_tree = etree.Element(
             'mailing-scenario', xmlns="http://www.canadapost.ca/ws/ship/rate")
         def add_child(child_name, parent=request_tree):
-            return etree.SubElement(request_tree, child_name)
-        add_child("customer-number").text = CUSTOMER_NUMBER
+            return etree.SubElement(parent, child_name)
+        add_child("customer-number").text = unicode(CUSTOMER_NUMBER)
 
         # parcel characteristics
         par_chars = add_child("parcel-characteristics")
-        add_child("weight", par_chars).text = parcel.weight
+        add_child("weight", par_chars).text = unicode(parcel.weight)
 
         # par_chars/dimensions
         dims = add_child("dimensions", par_chars)
-        add_child("lenght", dims).text = parcel.length
-        add_child("width", dims).text = parcel.width
-        add_child("height", dims).text = parcel.height
+        add_child("length", dims).text = unicode(parcel.length)
+        add_child("width", dims).text = unicode(parcel.width)
+        add_child("height", dims).text = unicode(parcel.height)
 
         add_child("origin-postal-code").text = origin.postal_code
 
