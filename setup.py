@@ -14,5 +14,6 @@ setup(
     include_package_data=True,
     install_requires = [
         'requests>=0.8',
+        "lxml",
     ],
 )
