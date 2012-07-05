@@ -5,15 +5,57 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/r
 from lxml import etree
 import requests
 from canada_post import (DEV, PROD, CUSTOMER_NUMBER, DEBUG, USERNAME, PASSWORD)
+from canada_post.util.money import (get_decimal, Price, Adjustment)
 
-class GetRates(object):
+class Service(object):
+    """
+    Represents each of the service options returned from a call to GetRates for
+    a given parcel. Serves as parameter to call GetService
+    """
+    def __init__(self, xml_subtree=None):
+        if xml_subtree is not None:
+            self._from_xml(xml_subtree)
+
+    def _from_xml(self, xml):
+        """
+        Initialize instance from the provided XML. It should be an object of
+        lxml.etree.Element representing one of CP's response's <price-quote>
+        elements
+        """
+        self.code = xml.find("service-code").text
+        self.link = xml.find("service-link").attrib
+        self.name = xml.find("service-name").text
+        self.price = self._price_from_xml(xml.find("price-details"))
+
+    def _price_from_xml(self, xml):
+        """
+        Create a Price detail object from a <price-details> XML element as
+        returned from the CP API
+        """
+        due = get_decimal(xml.find("due"))
+        base = get_decimal(xml.find("base").text)
+        tax = xml.find("taxes/gst")
+        gst = get_decimal(tax.text)
+        gst_percent = get_decimal(tax.get("percent"))
+        tax = xml.find("taxes/pst")
+        pst = get_decimal(tax.text)
+        pst_percent = get_decimal(tax.get("percent"))
+        tax = xml.find("taxes/hst")
+        hst = get_decimal(tax.text)
+        hst_percent = get_decimal(tax.get("percent"))
+        adjustments = [Adjustment(xml_source=adj)
+                       for adj in xml.findall("adjustments/adjustment")]
+        return Price(due=due, base=base, gst=gst, gst_pc=gst_percent,
+                     pst=pst, pst_pc=pst_percent, hst=hst, hst_pc=hst_percent,
+                     adjustments=adjustments)
+
+class GetRatesClass(object):
     URLS = {
         DEV: "https://ct.soa-gw.canadapost.ca/rs/ship/price",
         PROD: "https://soa-gw.canadapost.ca/rs/ship/price",
     }
 
-    @classmethod
-    def __call__(cls, parcel, origin, destination):
+    def __call__(self, parcel, origin, destination):
         """
         Call the GetRates service
         """
@@ -56,9 +98,20 @@ class GetRates(object):
         }
 
         dev = DEV if DEBUG else PROD
-        url = cls.URLS[dev]
+        url = self.URLS[dev]
         request = str(etree.tostring(request_tree, pretty_print=DEBUG))
         response = requests.post(url, data=request, headers=headers,
                                  auth=(USERNAME, PASSWORD))
-        return response
+        if not response.ok:
+            response.raise_for_status()
 
+        # this is a hack to remove the namespace from the response, since this
+        #breaks xpath lookup in lxml
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        services = [Service(xml_subtree=price)
+                    for price in restree.findall("price-quote")]
+
+        return services
+
+GetRates = GetRatesClass()
