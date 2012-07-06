@@ -32,7 +32,7 @@ class Service(object):
         Create a Price detail object from a <price-details> XML element as
         returned from the CP API
         """
-        due = get_decimal(xml.find("due"))
+        due = get_decimal(xml.find("due").text)
         base = get_decimal(xml.find("base").text)
         tax = xml.find("taxes/gst")
         gst = get_decimal(tax.text)
