@@ -20,3 +20,9 @@ class Parcel(InfoObject):
         self.width = width
         self.height = height
         super(Parcel, self).__init__(**kwargs)
+
+    def __unicode__(self):
+        return "Parcel {}kg-{}x{}x{}".format(self.weight,
+                                             self.length,
+                                             self.width,
+                                             self.height)
