@@ -4,7 +4,7 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/r
 """
 from lxml import etree
 import requests
-from canada_post import (DEV, PROD, CUSTOMER_NUMBER, DEBUG, USERNAME, PASSWORD)
+from canada_post import (DEV, PROD)
 from canada_post.util.money import (get_decimal, Price, Adjustment)
 
 class Service(object):
@@ -64,6 +64,10 @@ class GetRatesClass(object):
         DEV: "https://ct.soa-gw.canadapost.ca/rs/ship/price",
         PROD: "https://soa-gw.canadapost.ca/rs/ship/price",
     }
+    log = logging.getLogger('canada_post.service.rating.GetRates')
+
+    def __init__(self, auth):
+        self.auth = auth
 
     def __call__(self, parcel, origin, destination):
         """
@@ -73,7 +77,7 @@ class GetRatesClass(object):
             'mailing-scenario', xmlns="http://www.canadapost.ca/ws/ship/rate")
         def add_child(child_name, parent=request_tree):
             return etree.SubElement(parent, child_name)
-        add_child("customer-number").text = unicode(CUSTOMER_NUMBER)
+        add_child("customer-number").text = unicode(self.auth.customer_number)
 
         # parcel characteristics
         par_chars = add_child("parcel-characteristics")
@@ -107,11 +111,11 @@ class GetRatesClass(object):
             "Accept-language": "en-CA",
         }
 
-        dev = DEV if DEBUG else PROD
+        dev = DEV if self.auth.debug else PROD
         url = self.URLS[dev]
-        request = str(etree.tostring(request_tree, pretty_print=DEBUG))
+        request = str(etree.tostring(request_tree, pretty_print=self.auth.debug))
         response = requests.post(url, data=request, headers=headers,
-                                 auth=(USERNAME, PASSWORD))
+                                 auth=(self.auth.username, self.auth.password))
         if not response.ok:
             response.raise_for_status()
 
