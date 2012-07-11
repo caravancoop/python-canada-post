@@ -12,9 +12,19 @@ class Service(object):
     Represents each of the service options returned from a call to GetRates for
     a given parcel. Serves as parameter to call GetService
     """
-    def __init__(self, xml_subtree=None):
+    def __init__(self, xml_subtree=None, data={}):
         if xml_subtree is not None:
             self._from_xml(xml_subtree)
+        else:
+            self.code = data.get('code', 'BAD.CODE')
+            self.link = data.get('link', {})
+            self.name = data.get('name', 'UNDEFINED')
+            self.price = data.get('price', Price())
+
+    def __repr__(self):
+        return "Service(data={{ code='{code}', link='{link}', name='{name}', " \
+               "price={price} }})".format(code=self.code, link=repr(self.link),
+                                         name=self.name, price=repr(self.price))
 
     def _from_xml(self, xml):
         """
