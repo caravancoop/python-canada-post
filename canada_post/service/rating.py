@@ -23,7 +23,7 @@ class Service(object):
         elements
         """
         self.code = xml.find("service-code").text
-        self.link = xml.find("service-link").attrib
+        self.link = dict(xml.find("service-link").attrib)
         self.name = xml.find("service-name").text
         self.price = self._price_from_xml(xml.find("price-details"))
 
