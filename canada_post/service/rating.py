@@ -84,10 +84,11 @@ class GetRatesClass(object):
         add_child("weight", par_chars).text = unicode(parcel.weight)
 
         # par_chars/dimensions
-        dims = add_child("dimensions", par_chars)
-        add_child("length", dims).text = unicode(parcel.length)
-        add_child("width", dims).text = unicode(parcel.width)
-        add_child("height", dims).text = unicode(parcel.height)
+        if all((parcel.length > 0, parcel.width > 0, parcel.height > 0)):
+            dims = add_child("dimensions", par_chars)
+            add_child("length", dims).text = unicode(parcel.length)
+            add_child("width", dims).text = unicode(parcel.width)
+            add_child("height", dims).text = unicode(parcel.height)
 
         add_child("origin-postal-code").text = origin.postal_code
 
