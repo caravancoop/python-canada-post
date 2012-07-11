@@ -2,6 +2,7 @@
 GetRates Canada Post API
 https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/rating/default.jsf
 """
+import logging
 from lxml import etree
 import requests
 from canada_post import (DEV, PROD)
@@ -73,6 +74,8 @@ class GetRatesClass(object):
         """
         Call the GetRates service
         """
+        self.log.info("Getting rates for parcel: %s, from %s to %s", parcel,
+                      origin, destination)
         request_tree = etree.Element(
             'mailing-scenario', xmlns="http://www.canadapost.ca/ws/ship/rate")
         def add_child(child_name, parent=request_tree):
@@ -114,9 +117,13 @@ class GetRatesClass(object):
 
         dev = DEV if self.auth.debug else PROD
         url = self.URLS[dev]
+        self.log.info("Using url %s", url)
         request = str(etree.tostring(request_tree, pretty_print=self.auth.debug))
+        self.log.debug("Request xml: %s", request)
         response = requests.post(url, data=request, headers=headers,
                                  auth=(self.auth.username, self.auth.password))
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
         if not response.ok:
             response.raise_for_status()
 
@@ -128,5 +135,3 @@ class GetRatesClass(object):
                     for price in restree.findall("price-quote")]
 
         return services
-
-GetRates = GetRatesClass()
