@@ -4,47 +4,36 @@ Configuration module for the API. This defines whether to use the development
 or production credentials/urls (and what the credentials are).
 """
 
-DEBUG = False
-
 DEV = "DEV"
 PROD = "PROD"
 
-USERNAME = ""
-PASSWORD = ""
-
-CUSTOMER_NUMBER = ""
-
 class Auth(object):
-    def __init__(self, username="", password="", dev=PROD):
-        self.USERNAME = {
-            DEV: "",
-            PROD: "",
-            }
-        self.USERNAME[dev]=username
-        self.PASSWORD = {
-            DEV: "",
-            PROD: "",
+    USERNAME = {
+        DEV: "",
+        PROD: "",
         }
-        self.PASSWORD[dev] = password
+    PASSWORD = {
+        DEV: "",
+        PROD: "",
+        }
 
-    def set_password(self, password, dev=PROD):
-        """
-        Set the password.
-
-        @parameter
-        `dev`: Whether this is the development or production password. Should
-                be canada_post.DEV or canada_post.PROD
-        """
-        self.PASSWORD[dev] = password
-
-    def set_username(self, username, dev=PROD):
-        """
-        Set the username.
-
-        @parameter
-        `dev`: Whether this is the development or production password. Should
-                be canada_post.DEV or canada_post.PROD
-        """
+    def __init__(self, customer_number="", username="", password="", dev=PROD):
+        self.dev = dev
+        self.debug = dev == DEV
+        self.customer_number = customer_number
         self.USERNAME[dev] = username
+        self.PASSWORD[dev] = password
 
-AUTH = Auth()
+    @property
+    def username(self):
+        return self.USERNAME[self.dev]
+
+    @property
+    def password(self):
+        return self.PASSWORD[self.dev]
+
+_auth = None
+
+def set_credentials(customer_number, username, password, dev=PROD):
+    if _auth is None:
+        _auth = Auth(customer_number, username, password, dev)
