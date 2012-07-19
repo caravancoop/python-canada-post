@@ -53,6 +53,13 @@ class Price(InfoObject):
 
         super(Price, self).__init__(**kwargs)
 
+    @property
+    def total(self):
+        """
+        Return total cost, minus taxes
+        """
+        return self.base + self.adjustment_total
+
     def __repr__(self):
         return "Price(due={due}, base={base}, gst={gst}, gst_pc={gst_pc}, " \
                "pst={pst}, pst_pc={pst_pc}, hst={hst}, hst_pc={hst_pc}, " \
