@@ -48,7 +48,8 @@ class Price(InfoObject):
         ## adjustment
         self.adjustments=adjustments
         # adjustment total
-        self.adjustment_total = sum()
+        self.adjustment_total = sum(adjustment.cost
+            for adjustment in adjustments)
 
         super(Price, self).__init__(**kwargs)
 
