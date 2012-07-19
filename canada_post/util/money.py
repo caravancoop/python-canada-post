@@ -12,7 +12,9 @@ class Adjustment(InfoObject):
             self.code = xml_source.find("adjustment-code").text
             self.name = xml_source.find("adjustment-name").text
             self.cost = get_decimal(xml_source.find("adjustment-cost").text)
-            self.percent = xml_source.find("qualifier/percent").text
+            percent = xml_source.find("qualifier/percent")
+            if percent is not None:
+                self.percent = xml_source.find("qualifier/percent").text
         super(Adjustment, self).__init__(**kwargs)
 
     def __repr__(self):
