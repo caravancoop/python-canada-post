@@ -8,8 +8,8 @@ class AddressBase(InfoObject):
         super(AddressBase, self).__init__(**kwargs)
 
 class Origin(AddressBase):
-    def __init__(self, phone=None, *args, **kwargs):
-        self.phone = phone
+    def __init__(self, country_code="CA", *args, **kwargs):
+        self.country_code = country_code
         super(Origin, self).__init__(*args, **kwargs)
 
 class Destination(AddressBase):
