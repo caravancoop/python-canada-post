@@ -17,10 +17,12 @@ class Auth(object):
         PROD: "",
         }
 
-    def __init__(self, customer_number="", username="", password="", dev=PROD):
+    def __init__(self, customer_number="", username="", password="",
+                 contract_number="", dev=PROD):
         self.dev = dev
         self.debug = dev == DEV
         self.customer_number = customer_number
+        self.contract_number = contract_number
         self.USERNAME[dev] = username
         self.PASSWORD[dev] = password
 
