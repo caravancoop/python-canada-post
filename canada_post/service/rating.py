@@ -3,6 +3,7 @@ GetRates Canada Post API
 https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/rating/default.jsf
 """
 import logging
+from canada_post.service import ServiceBase
 from lxml import etree
 import requests
 from canada_post import (DEV, PROD)
@@ -60,15 +61,13 @@ class Service(object):
                      pst=pst, pst_pc=pst_percent, hst=hst, hst_pc=hst_percent,
                      adjustments=adjustments)
 
-class GetRatesClass(object):
-    URLS = {
-        DEV: "https://ct.soa-gw.canadapost.ca/rs/ship/price",
-        PROD: "https://soa-gw.canadapost.ca/rs/ship/price",
-    }
+class GetRates(ServiceBase):
+    URL = "https://{server}/rs/ship/price",
+
     log = logging.getLogger('canada_post.service.rating.GetRates')
 
-    def __init__(self, auth):
-        self.auth = auth
+    def get_url(self):
+        return self.URL.format(server=self.get_server())
 
     def __call__(self, parcel, origin, destination):
         """
@@ -121,7 +120,7 @@ class GetRatesClass(object):
         request = str(etree.tostring(request_tree, pretty_print=self.auth.debug))
         self.log.debug("Request xml: %s", request)
         response = requests.post(url, data=request, headers=headers,
-                                 auth=(self.auth.username, self.auth.password))
+                                 auth=self.userpass())
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)
         if not response.ok:
