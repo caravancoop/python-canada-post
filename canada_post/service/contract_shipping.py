@@ -2,6 +2,7 @@
 ContractShipping Canada Post API
 https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/default.jsf
 """
+import logging
 import requests
 from canada_post.service import ServiceBase
 
@@ -11,7 +12,8 @@ class CreateShipping(ServiceBase):
     https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/createshipment.jsf
     """
     URL ="https://{server}/rs/{customer}/{mobo}/shipment"
-
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.CreateShipping')
     def __init__(self, auth, url=None):
         if url:
             self.URL = url
