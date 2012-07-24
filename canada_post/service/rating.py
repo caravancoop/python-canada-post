@@ -14,6 +14,7 @@ class Service(object):
     Represents each of the service options returned from a call to GetRates for
     a given parcel. Serves as parameter to call GetService
     """
+    log = logging.getLogger('canada_post.service.rating.Service')
     def __init__(self, xml_subtree=None, data={}):
         if xml_subtree is not None:
             self._from_xml(xml_subtree)
