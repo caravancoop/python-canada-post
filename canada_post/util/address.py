@@ -13,6 +13,7 @@ class Origin(AddressBase):
         super(Origin, self).__init__(*args, **kwargs)
 
 class Destination(AddressBase):
-    def __init__(self, country_code, *args, **kwargs):
+    def __init__(self, country_code, extra=None, *args, **kwargs):
         self.country_code = country_code
+        self.extra = extra
         super(Destination, self).__init__(*args, **kwargs)
