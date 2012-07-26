@@ -11,7 +11,7 @@ class ServiceBase(object):
     """
     SERVER = {
         DEV: "ct.soa-gw.canadapost.ca",
-        PROD: "ct.soa-gw.canadapost.ca",
+        PROD: "soa-gw.canadapost.ca",
     }
 
     def __init__(self, auth):
