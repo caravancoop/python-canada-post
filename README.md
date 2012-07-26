@@ -30,3 +30,21 @@ Example usage
     shipment = cpa.create_shipment(parcel, origin, dest, service, group_name)
     print shipment.id, shipment.status, shipment.tracking_pin
     print shipment.links['label']
+
+Plese notice that the API is less than stable yet (for example, the
+`create_shipment` interface that's been implemented is just for the Contract
+Shipment service, so it should probably be under a sublayer something like
+`cpa.contract.create_shipment`).
+
+The links object is a dict of
+
+    rel -> { 'href':...,
+             'index':...,
+             'rel':...,
+             'media-type':...
+           }
+
+(it could be different depending on the rel, see the response part of
+https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/createshipment.jsf
+for details). A better solution for this might be created in the near future,
+I'll try to be very clear about any changes.
