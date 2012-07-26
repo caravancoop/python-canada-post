@@ -10,7 +10,43 @@ from canada_post.util import InfoObject
 
 class Shipment(InfoObject):
     """
+    Shipment class, is the return value of the CreateShipment service.
+    It contains
+      * tracking pin
+      * return tracking pin
+      * [shipment ]id
+      * [shipment ]status
+      * links is a dict of string --> dict where the keys are the rel
+         attribute of each link (see the CreateShipment docs in the canadapost
+         site. See the CreateShipment docstring for a link) and the keys have an
+         'href' which is the link, the same 'rel' value and some other
+         attributes, depending on each link
     """
+    def __init__(self, xml=None, **kwargs):
+        if xml is not None:
+            self._from_xml(xml)
+        super(InfoObject, self).__init__(**kwargs)
+
+    def _from_xml(self, xml):
+        # I do this this way because I can't expect all return codes to have all
+        #  values, I just fill in every Simple element in self
+        for child in xml.getchildren():
+            if child.tag == "shipment-id":
+                self.id = child.text
+            elif child.tag == "shipment-status":
+                self.status = child.text
+            elif child.tag == "links":
+                # I can't make these into InfoObjects because there's a `self`
+                #  rel object
+                self.links = dict((link['rel'], link)
+                    for link in map(lambda l: dict(l.attrib),
+                                    child.findall("link")))
+            else:
+                # expected "tracking-pin" "return-tracking-pin"
+                attrname = child.tag.replace("-", "_")
+                setattr(self, attrname, child.text)
+
+
 class CreateShipment(ServiceBase):
     """
     CreateShipment Canada Post API (for ContractShipping)
