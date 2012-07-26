@@ -218,7 +218,13 @@ class CreateShipment(ServiceBase):
             'Accept-language': "en-CA",
         }
         url = self.get_url()
-        request = etree.tostring(shipment, pretty_print=True)
-        return request, url, headers
-        requests.post(url=url, data=request, headers=headers,
-                      auth=self.userpass())
+        request = etree.tostring(shipment, pretty_print=self.auth.debug)
+        response = requests.post(url=url, data=request, headers=headers,
+                                 auth=self.userpass())
+        if not response.ok:
+            response.raise_for_status()
+        # this is a hack to remove the namespace from the response, since this
+        #breaks xpath lookup in lxml
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        return Shipment(xml=restree)
