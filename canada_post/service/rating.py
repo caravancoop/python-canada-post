@@ -9,7 +9,7 @@ import requests
 from canada_post import (DEV, PROD)
 
 class GetRates(ServiceBase):
-    URL = "https://{server}/rs/ship/price",
+    URL = "https://{server}/rs/ship/price"
 
     log = logging.getLogger('canada_post.service.rating.GetRates')
 

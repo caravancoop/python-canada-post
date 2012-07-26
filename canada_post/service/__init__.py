@@ -17,7 +17,7 @@ class ServiceBase(object):
     def __init__(self, auth):
         self.auth = auth
 
-    def get_sever(self):
+    def get_server(self):
         return self.SERVER[self.auth.dev]
 
     def userpass(self):

@@ -67,7 +67,7 @@ class CreateShipment(ServiceBase):
         self.URL = url
 
     def get_url(self):
-        return self.URL.format(server=self.get_sever(),
+        return self.URL.format(server=self.get_server(),
                                customer=self.auth.customer_number,
                                mobo=self.auth.customer_number)
 
