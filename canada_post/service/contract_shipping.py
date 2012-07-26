@@ -6,19 +6,23 @@ import logging
 from lxml import etree
 import requests
 from canada_post.service import ServiceBase
+from canada_post.util import InfoObject
 
-class CreateShipping(ServiceBase):
+class Shipment(InfoObject):
     """
-    CreateShipping Canada Post API (for ContractShipping)
+    """
+class CreateShipment(ServiceBase):
+    """
+    CreateShipment Canada Post API (for ContractShipping)
     https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/createshipment.jsf
     """
     URL ="https://{server}/rs/{customer}/{mobo}/shipment"
     log = logging.getLogger('canada_post.service.contract_shipping'
-                            '.CreateShipping')
+                            '.CreateShipment')
     def __init__(self, auth, url=None):
         if url:
             self.URL = url
-        super(CreateShipping, self).__init__(auth)
+        super(CreateShipment, self).__init__(auth)
 
     def set_link(self, url):
         """
