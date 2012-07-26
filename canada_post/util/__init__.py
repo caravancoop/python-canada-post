@@ -3,3 +3,7 @@ class InfoObject(object):
         for k, v in kwargs.items():
         # set any extra kwargs we got
             setattr(self, k, v)
+
+    def __repr__(self):
+        return "{klass}.{contents}".format(klass=self.__class__.__name__,
+                                           contents=repr(self.__dict__))
