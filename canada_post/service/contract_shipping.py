@@ -5,7 +5,7 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/s
 import logging
 from lxml import etree
 import requests
-from canada_post.service import ServiceBase
+from canada_post.service import ServiceBase, CallLinkService
 from canada_post.util import InfoObject
 
 class Shipment(InfoObject):
@@ -234,3 +234,11 @@ class CreateShipment(ServiceBase):
         restree = etree.XML(response.content.replace(' xmlns="',
                                                      ' xmlnamespace="'))
         return Shipment(xml=restree)
+
+class VoidShipment(CallLinkService):
+    """
+    Cancel a Contract Shipping created Shipment created by CreateShipment
+    """
+    log = logging.getLogger("canada_post.service.contract_shipping"
+                            ".VoidShipment")
+    link_rel = 'self'
