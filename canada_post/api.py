@@ -11,4 +11,4 @@ class CanadaPostAPI(object):
         self.auth = Auth(customer_number, username, password, contract_number,
                          dev)
         self.get_rates = GetRates(self.auth)
-        self.create_shipping = CreateShipment(self.auth)
+        self.create_shipment = CreateShipment(self.auth)
