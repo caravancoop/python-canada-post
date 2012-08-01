@@ -23,6 +23,31 @@ class ServiceBase(object):
     def userpass(self):
         return self.auth.username, self.auth.password
 
+class CallLinkService(ServiceBase):
+    """
+    Services that are called from link details returned by a prior call
+    """
+    log = logging.getLogger('canada_post.service.CallLinkService')
+    link_rel = 'BAD_NAME'
+    def __call__(self, shipment):
+        """
+        Void the Shipment object passed as parameter, using it's 'void' link
+        """
+        self.log.info("Calling %s on shipment %s", self.__class__.__name__,
+                      shipment)
+        link = shipment.links[self.link_rel]
+        url = link['href']
+        self.log.info("Calling url %s", url)
+        headers = {
+            'Accept': link['media-type'],
+            'Accept-language': 'en-CA',
+            }
+        res = requests.get(url, headers=headers, auth=(self.userpass()))
+        self.log.info("Response status code: %d", res.status_code)
+        if not res.ok:
+            res.raise_for_status()
+        return True
+
 class Service(object):
     """
     Represents each of the service options returned from a call to GetRates for
