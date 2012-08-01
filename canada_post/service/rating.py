@@ -27,6 +27,8 @@ class GetRates(ServiceBase):
         def add_child(child_name, parent=request_tree):
             return etree.SubElement(parent, child_name)
         add_child("customer-number").text = unicode(self.auth.customer_number)
+        if self.auth.contract_number:
+            add_child("contract-id").text = unicode(self.auth.contract_number)
 
         # parcel characteristics
         par_chars = add_child("parcel-characteristics")
