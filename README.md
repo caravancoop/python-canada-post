@@ -52,3 +52,4 @@ I'll try to be very clear about any changes.
 Changelog
 =========
 0.0.3-2: Changed name from create_shipping to create_shipment
+0.0.4: created void_shipment service for contract shipping
