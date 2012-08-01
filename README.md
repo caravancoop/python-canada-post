@@ -48,3 +48,7 @@ The links object is a dict of
 https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/createshipment.jsf
 for details). A better solution for this might be created in the near future,
 I'll try to be very clear about any changes.
+
+Changelog
+=========
+0.0.3-2: Changed name from create_shipping to create_shipment
