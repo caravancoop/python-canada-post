@@ -4,6 +4,7 @@ Different Canada Post Developer Program services
 import logging
 from canada_post import DEV, PROD
 from canada_post.util.money import Price, get_decimal, Adjustment
+import requests
 
 class ServiceBase(object):
     """
@@ -19,6 +20,9 @@ class ServiceBase(object):
 
     def get_server(self):
         return self.SERVER[self.auth.dev]
+
+    def get_url(self):
+        raise NotImplementedError
 
     def userpass(self):
         return self.auth.username, self.auth.password
