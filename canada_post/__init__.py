@@ -1,4 +1,4 @@
-VERSION = "0.0.4"
+VERSION = "0.0.4-1"
 """
 Configuration module for the API. This defines whether to use the development
 or production credentials/urls (and what the credentials are).
