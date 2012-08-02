@@ -46,7 +46,7 @@ class CallLinkService(ServiceBase):
             'Accept': link['media-type'],
             'Accept-language': 'en-CA',
             }
-        res = requests.get(url, headers=headers, auth=(self.userpass()))
+        res = requests.delete(url, headers=headers, auth=(self.userpass()))
         self.log.info("Response status code: %d", res.status_code)
         if not res.ok:
             res.raise_for_status()

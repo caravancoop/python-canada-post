@@ -25,7 +25,7 @@ class Shipment(InfoObject):
     def __init__(self, xml=None, **kwargs):
         if xml is not None:
             self._from_xml(xml)
-        super(InfoObject, self).__init__(**kwargs)
+        super(Shipment, self).__init__(**kwargs)
 
     def _from_xml(self, xml):
         # I do this this way because I can't expect all return codes to have all
