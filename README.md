@@ -51,7 +51,7 @@ I'll try to be very clear about any changes.
 
 Changelog
 =========
-0.0.3-2: Changed name from create_shipping to create_shipment
-0.0.4: created void_shipment service for contract shipping
-0.0.4-1: bugfixes: error on super() call, and change VoidOrder's request method
-         to DELETE
+* 0.0.3-2: Changed name from create_shipping to create_shipment
+* 0.0.4:   created void_shipment service for contract shipping
+* 0.0.4-1: bugfixes: error on super() call, and change VoidOrder's request method
+           to DELETE
