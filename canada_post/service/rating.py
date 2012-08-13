@@ -4,9 +4,9 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/r
 """
 import logging
 from canada_post.service import ServiceBase, Service
+from canada_post.errors import CanadaPostError
 from lxml import etree
 import requests
-from canada_post import (DEV, PROD)
 
 class GetRates(ServiceBase):
     URL = "https://{server}/rs/ship/price"
@@ -72,7 +72,16 @@ class GetRates(ServiceBase):
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)
         if not response.ok:
-            response.raise_for_status()
+            if response.status_code == 400:
+                restree = etree.XML(response.content.replace(' xmlns="',
+                                                             ' xmlnamespace="'))
+                error_code = int(restree.find(".//code").text)
+                if (error_code == 1622 or error_code == 7050 or
+                    error_code == 9111 or error_code == 9112):
+                    message = restree.find(".//description").text
+                    raise CanadaPostError(error_code, message)
+            else:
+                response.raise_for_status()
 
         # this is a hack to remove the namespace from the response, since this
         #breaks xpath lookup in lxml
