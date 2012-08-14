@@ -68,8 +68,8 @@ class Service(object):
             self.price = data.get('price', Price())
 
     def __repr__(self):
-        return "Service(data={{ code='{code}', link='{link}', name='{name}', " \
-               "price={price} }})".format(code=self.code, link=repr(self.link),
+        return u"Service(data={{ code='{code}', link='{link}', name='{name}', " \
+               u"price={price} }})".format(code=self.code, link=repr(self.link),
                                          name=self.name, price=repr(self.price))
 
     def _from_xml(self, xml):

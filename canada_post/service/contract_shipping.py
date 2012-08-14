@@ -88,8 +88,8 @@ class CreateShipment(ServiceBase):
                       addr_detail).text = unicode(address.postal_code)
         else:
             assert address.country_code not in ("US", "CA"), (
-                "Addresses within {} require "
-                "a postal code").format(address.country_code)
+                u"Addresses within {} require "
+                u"a postal code").format(address.country_code)
 
         return addr_detail
 
