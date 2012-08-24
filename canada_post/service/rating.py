@@ -49,7 +49,7 @@ class GetRates(ServiceBase):
             doms = add_child("domestic", dest)
             add_child("postal-code", doms).text = destination.postal_code
         elif destination.country_code == "US":
-            us = add_child("united-states")
+            us = add_child("united-states", dest)
             add_child("zip-code", us).text = destination.postal_code
         else:
             # international shipping
