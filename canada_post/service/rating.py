@@ -72,16 +72,14 @@ class GetRates(ServiceBase):
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)
         if not response.ok:
-            if response.status_code == 400:
-                restree = etree.XML(response.content.replace(' xmlns="',
-                                                             ' xmlnamespace="'))
-                error_code = int(restree.find(".//code").text)
-                if (error_code == 1622 or error_code == 7050 or
-                    error_code == 9111 or error_code == 9112):
-                    message = restree.find(".//description").text
-                    raise CanadaPostError(error_code, message)
-            else:
-                response.raise_for_status()
+            restree = etree.XML(response.content.replace(' xmlns="',
+                                                         ' xmlnamespace="'))
+            error_code = restree.find(".//code").text
+            if error_code.isdigit():
+                error_code = int(error_code)
+            message = restree.find(".//description").text
+
+            raise CanadaPostError(error_code, message)
 
         # this is a hack to remove the namespace from the response, since this
         #breaks xpath lookup in lxml
