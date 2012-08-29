@@ -5,5 +5,5 @@ class InfoObject(object):
             setattr(self, k, v)
 
     def __repr__(self):
-        return u"{klass}.{contents}".format(klass=self.__class__.__name__,
-                                            contents=repr(self.__dict__))
+        return "{klass}.{contents}".format(klass=self.__class__.__name__,
+                                           contents=repr(self.__dict__))
