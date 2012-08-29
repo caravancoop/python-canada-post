@@ -24,7 +24,7 @@ class Parcel(InfoObject):
         super(Parcel, self).__init__(**kwargs)
 
     def __unicode__(self):
-        return "Parcel {}kg-{}x{}x{}".format(self.weight,
-                                             self.length,
-                                             self.width,
-                                             self.height)
+        return u"Parcel {}kg-{}x{}x{}".format(self.weight,
+                                              self.length,
+                                              self.width,
+                                              self.height)
