@@ -86,7 +86,7 @@ class Service(object):
         self.name = xml.find("service-name").text
         self.price = self._price_from_xml(xml.find("price-details"))
         self.transit_time = xml.find("service-standard/expected-transit-time")
-        if self.transit_time:
+        if self.transit_time is not None:
             self.transit_time = int(self.transit_time.text)
 
     def _price_from_xml(self, xml):
