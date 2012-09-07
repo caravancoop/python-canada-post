@@ -85,8 +85,9 @@ class Service(object):
         self.link = dict(xml.find("service-link").attrib)
         self.name = xml.find("service-name").text
         self.price = self._price_from_xml(xml.find("price-details"))
-        self.transit_time = int(xml.find("service-standard/"
-                                         "expected-transit-time").text)
+        self.transit_time = xml.find("service-standard/expected-transit-time")
+        if self.transit_time:
+            self.transit_time = int(self.transit_time.text)
 
     def _price_from_xml(self, xml):
         """
