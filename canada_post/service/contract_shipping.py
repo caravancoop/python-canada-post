@@ -242,3 +242,4 @@ class VoidShipment(CallLinkService):
     log = logging.getLogger("canada_post.service.contract_shipping"
                             ".VoidShipment")
     link_rel = 'self'
+    method_name = 'delete'

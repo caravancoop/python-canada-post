@@ -30,9 +30,15 @@ class ServiceBase(object):
 class CallLinkService(ServiceBase):
     """
     Services that are called from link details returned by a prior call
+
+    override klass.method to change GET to POST, DELETE, PUT, etcetera
     """
     log = logging.getLogger('canada_post.service.CallLinkService')
     link_rel = 'BAD_NAME'
+    method_name = 'get'
+    def __init__(self, *args, **kwargs):
+        super(CallLinkService, self).__init__(*args, **kwargs)
+        self.method = getattr(requests, self.method_name)
     def __call__(self, shipment):
         """
         Void the Shipment object passed as parameter, using it's 'void' link
@@ -46,7 +52,7 @@ class CallLinkService(ServiceBase):
             'Accept': link['media-type'],
             'Accept-language': 'en-CA',
             }
-        res = requests.delete(url, headers=headers, auth=(self.userpass()))
+        res = self.method(url, headers=headers, auth=(self.userpass()))
         self.log.info("Response status code: %d", res.status_code)
         if not res.ok:
             res.raise_for_status()
