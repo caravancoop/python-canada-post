@@ -243,6 +243,95 @@ class CreateShipment(ServiceBase):
                                                      ' xmlnamespace="'))
         return Shipment(xml=restree)
 
+class TransmitShipments(ServiceBase):
+    """
+    Used to specify shipments to be included in a manifest. Inclusion in a
+    manifest is specified by group. Specific shipments may be excluded if
+    desired.
+
+    http://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/transmitshipments.jsf
+    """
+    URL ="https://{server}/rs/{customer}/{mobo}/manifest"
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.TransmitShipments')
+
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, origin, group_ids, name=None, detailed=True,
+                 excluded_shipments=[]):
+        """
+        Transmit shipments to create manifests from
+
+        :origin: a canada_post.util.address.Origin instance
+        :group_ids: the list of group ids to be transmitted (string,..32 char)
+        :name: the manifest name. Optional. (string ..44 char)
+        :detailed: boolean. Define whether a detailed or summarized manifest
+            should be rendered. Defaults to True
+        :excluded_shipments: an optional list of shipment ids to be excluded
+            from the manifest (string ..32 char)
+        """
+
+        transmit = etree.Element(
+            "transmit-set", xmlns="http://www.canadapost.ca/ws/manifest")
+        add_child = add_child_factory(transmit)
+
+        groups = add_child('group-ids')
+        for group_id in group_ids:
+            add_child('group-id', groups).text = unicode(group_id)
+
+        add_child('requested-shipping-point').text = unicode(origin.postal_code)
+
+        add_child('detailed-manifests').text = 'true' if detailed else 'false'
+
+        # TODO: can be CreditCard as well
+        add_child("method-of-payment").text = "Account"
+
+        # address start
+        address = add_child('manifest-address')
+        add_child('manifest-company', address).text = origin.company
+        add_child('manifest-name', address).text = name
+        add_child('phone-number', address).text = unicode(origin.phone)
+        # details start
+        details = add_child('address-details', address)
+        add_child('address-line-1', details).text = origin.address1
+        add_child('address-line-2', details).text = origin.address2
+        add_child('city', details).text = origin.city
+        add_child('prov-state', details).text = origin.province
+        add_child('postal-zip-code', details).text = unicode(origin.postal_code)
+        #details end
+        # address end
+
+        if excluded_shipments:
+            excluded = add_child('excluded-shipments')
+            for shipment in excluded_shipments:
+                add_child('shipment-id', excluded).text = unicode(shipment)
+        headers = {
+            'Accept': "application/vnd.cpc.manifest-v2+xml",
+            'Content-Type': 'application/vnd.cpc.manifest-v2+xml',
+            'Accept-language': 'en-CA',
+        }
+        url = self.get_url()
+        self.log.info("Using url %s", url)
+        request = etree.tostring(transmit, pretty_print=self.auth.debug)
+        self.log.debug("Request xml: %s", request)
+        response = requests.post(url=url, data=request, headers=headers,
+                                 auth=self.userpass())
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+
+        if not response.ok:
+            response.raise_for_status()
+
+        # this is a hack to remove the namespace from the response, since this
+        #breaks xpath lookup in lxml
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        links = [dict(link.attrib) for link in restree.getchildren()]
+        return links
+
 class VoidShipment(CallLinkService):
     """
     Cancel a Contract Shipping created Shipment created by CreateShipment
