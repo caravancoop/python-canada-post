@@ -8,6 +8,12 @@ import requests
 from canada_post.service import ServiceBase, CallLinkService
 from canada_post.util import InfoObject
 
+
+def add_child_factory(default_parent):
+    def add_child(child_name, parent=default_parent):
+        return etree.SubElement(parent, child_name)
+    return add_child
+
 class Shipment(InfoObject):
     """
     Shipment class, is the return value of the CreateShipment service.
@@ -112,8 +118,10 @@ class CreateShipment(ServiceBase):
         # shipment
         shipment = etree.Element(
             "shipment", xmlns="http://www.canadapost.ca/ws/shipment")
-        def add_child(child_name, parent=shipment):
-            return etree.SubElement(parent, child_name)
+
+        # add child function
+        add_child = add_child_factory(shipment)
+
         add_child("group-id").text = group
         add_child("requested-shipping-point").text = unicode(origin.postal_code)
         delivery_spec = add_child("delivery-spec")
