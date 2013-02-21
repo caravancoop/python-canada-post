@@ -3,11 +3,13 @@ ContractShipping Canada Post API
 https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/shippingmanifest/default.jsf
 """
 import logging
+from tempfile import NamedTemporaryFile
 from lxml import etree
 import requests
 from canada_post.errors import Wait
 from canada_post.service import ServiceBase, CallLinkService
 from canada_post.util import InfoObject
+import os
 
 
 def add_child_factory(default_parent):
@@ -304,7 +306,8 @@ class TransmitShipments(ServiceBase):
         # address start
         address = add_child('manifest-address')
         add_child('manifest-company', address).text = origin.company
-        add_child('manifest-name', address).text = name
+        if name:
+            add_child('manifest-name', address).text = name
         add_child('phone-number', address).text = unicode(origin.phone)
         # details start
         details = add_child('address-details', address)
