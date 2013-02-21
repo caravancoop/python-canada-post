@@ -6,3 +6,6 @@ class CanadaPostError(Exception):
         self.code = code
         self.message = message
         super(CanadaPostError, self).__init__(*args, **kwargs)
+
+def Wait(Exception):
+    pass

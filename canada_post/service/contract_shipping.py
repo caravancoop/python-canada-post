@@ -5,6 +5,7 @@ https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/s
 import logging
 from lxml import etree
 import requests
+from canada_post.errors import Wait
 from canada_post.service import ServiceBase, CallLinkService
 from canada_post.util import InfoObject
 
