@@ -366,6 +366,29 @@ class GetManifest(ServiceBase):
                                                      ' xmlnamespace="'))
         return Manifest(xml=restree)
 
+class GetManifestShipments(ServiceBase):
+    """
+    Get the list of shipment ids for a given manifest
+    """
+    def __call__(self, manifest):
+        self.log.info("Getting shipments for manifest %s", str(manifest))
+        link = manifest.links['manifestShipments']['href']
+        self.log.info("Using link %s", link)
+        response = requests.get(link, auth=self.userpass())
+        self.log.info("Canada Post returned with status code %d",
+                      response.status_code)
+        self.log.debug("CanadaPost returned with content: %s", response.content)
+        if not response.ok:
+            response.raise_for_status()
+
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        shipments = []
+        for link in restree.findall('link'):
+            url = link.attrib['href']
+            shipments.append(os.path.basename(url))
+        return shipments
+
 class GetArtifact(ServiceBase):
     """
     Download a PDF link from a Shipment or Manifest object, and return a
