@@ -349,6 +349,23 @@ class TransmitShipments(ServiceBase):
         links = [dict(link.attrib) for link in restree.getchildren()]
         return links
 
+class GetManifest(ServiceBase):
+    """
+    Get a manifest, from a link returned by a previous call to TransmitShipments
+    """
+    def __call__(self, link):
+        self.log.info("Getting manifest from link %s", link)
+        response = requests.get(link, auth=self.userpass())
+        self.log.info("Canada Post returned with status code %d",
+                      response.status_code)
+        self.log.debug("Canada Post returned with content %s", response.content)
+        if not response.ok:
+            response.raise_for_status()
+
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        return Manifest(xml=restree)
+
 class GetArtifact(ServiceBase):
     """
     Download a PDF link from a Shipment or Manifest object, and return a
