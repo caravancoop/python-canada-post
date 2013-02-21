@@ -29,6 +29,7 @@ class Shipment(InfoObject):
          'href' which is the link, the same 'rel' value and some other
          attributes, depending on each link
     """
+    artifact_type = 'label'
     def __init__(self, xml=None, **kwargs):
         if xml is not None:
             self._from_xml(xml)
@@ -53,6 +54,16 @@ class Shipment(InfoObject):
                 attrname = child.tag.replace("-", "_")
                 setattr(self, attrname, child.text)
 
+class Manifest(InfoObject):
+    artifact_type = 'artifact'
+    def __init__(self, xml=None, **kwargs):
+        if xml is not None:
+            self._from_xml(xml)
+        super(Manifest, self).__init__(**kwargs)
+
+    def _from_xml(self, xml):
+        self.po_number = xml.find('po-number').text
+        self.links = dict((link['rel'], link) for link in map(lambda l: dict(l.attrib), xml.find('links').findall('link')))
 
 class CreateShipment(ServiceBase):
     """
@@ -318,8 +329,10 @@ class TransmitShipments(ServiceBase):
         self.log.info("Using url %s", url)
         request = etree.tostring(transmit, pretty_print=self.auth.debug)
         self.log.debug("Request xml: %s", request)
+
         response = requests.post(url=url, data=request, headers=headers,
                                  auth=self.userpass())
+
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)
 
@@ -332,6 +345,29 @@ class TransmitShipments(ServiceBase):
                                                      ' xmlnamespace="'))
         links = [dict(link.attrib) for link in restree.getchildren()]
         return links
+
+class GetArtifact(ServiceBase):
+    """
+    Download a PDF link from a Shipment or Manifest object, and return a
+    temporary file with it
+    """
+    def __call__(self, obj):
+        self.log.info("Getting artifact for object %s", str(obj))
+        link = obj.links[obj.artifact_type]
+        self.log.info("Using link %s", link)
+        res = requests.get(link['href'], auth=self.userpass())
+        self.log.info("Canada Post returned with status code %d",
+                      res.status_code)
+        self.log.debug("Canada Post returned with content: %s", res.content)
+        if res.status_code == 202:
+            raise Wait
+        if not res.ok:
+            res.raise_for_status()
+
+        img_temp = NamedTemporaryFile(delete=True)
+        img_temp.write(res.content)
+        img_temp.flush()
+        return img_temp
 
 class VoidShipment(CallLinkService):
     """
