@@ -54,6 +54,7 @@ class CallLinkService(ServiceBase):
             }
         res = self.method(url, headers=headers, auth=(self.userpass()))
         self.log.info("Response status code: %d", res.status_code)
+        self.log.debug("Response content: %s", res.content)
         if not res.ok:
             res.raise_for_status()
         return True
