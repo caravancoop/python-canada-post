@@ -357,7 +357,7 @@ class GetManifest(ServiceBase):
                             '.GetManifest')
     def __call__(self, link):
         self.log.info("Getting manifest from link %s", link)
-        response = requests.get(link, auth=self.userpass())
+        response = requests.get(link['href'], auth=self.userpass())
         self.log.info("Canada Post returned with status code %d",
                       response.status_code)
         self.log.debug("Canada Post returned with content %s", response.content)
