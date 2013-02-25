@@ -353,6 +353,8 @@ class GetManifest(ServiceBase):
     """
     Get a manifest, from a link returned by a previous call to TransmitShipments
     """
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetManifest')
     def __call__(self, link):
         self.log.info("Getting manifest from link %s", link)
         response = requests.get(link, auth=self.userpass())
@@ -370,6 +372,8 @@ class GetManifestShipments(ServiceBase):
     """
     Get the list of shipment ids for a given manifest
     """
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetManifestShipments')
     def __call__(self, manifest):
         self.log.info("Getting shipments for manifest %s", str(manifest))
         link = manifest.links['manifestShipments']['href']
@@ -394,6 +398,8 @@ class GetArtifact(ServiceBase):
     Download a PDF link from a Shipment or Manifest object, and return a
     temporary file with it
     """
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetArtifact')
     def __call__(self, obj):
         self.log.info("Getting artifact for object %s", str(obj))
         link = obj.links[obj.artifact_type]
