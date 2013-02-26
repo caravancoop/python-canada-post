@@ -195,6 +195,37 @@ class CreateShipment(ServiceBase):
         dest_details = self._create_address_detail(dest, destination, add_child)
         # done destination
 
+        # customs
+        if destination.country_code != 'CA':
+            # international shippings require customs details. Several things
+            # are hardcoded here, which should be parametrical.
+            customs = add_child('customs', delivery_spec)
+            # TODO: this should be a parameter
+            add_child('currency', customs).text = 'CAD'
+            # TODO: this should be a parameter
+            # these are the valid options:
+            #  GIF = gift
+            #  DOC = document
+            #  SAM = commercial sample
+            #  REP = repair or warranty
+            #  SOG = sale of goods
+            #  OTH = other
+            add_child('reason-for-export', customs).text = 'SOG'
+            sku_list = add_child('sku-list', customs)
+            assert bool(parcel.items), ("International shipping requires a "
+                                        "list of the items")
+            for item in parcel.items:
+                item_elem = add_child('item', sku_list)
+                add_child('customs-number-of-units',
+                          item_elem).text = unicode(item.amount)
+                add_child('customs-description',
+                          item_elem).text = item.description
+                add_child('unit-weight', item_elem).text = unicode(item.weight)
+                add_child('customs-value-per-unit',
+                          item_elem).text = unicode(item.price)
+
+        # done customs
+
         # TODO: options
         #options = add_child("options", delivery_spec)
 
