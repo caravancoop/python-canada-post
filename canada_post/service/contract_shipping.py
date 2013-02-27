@@ -113,7 +113,8 @@ class CreateShipment(ServiceBase):
 
         return addr_detail
 
-    def __call__(self, parcel, origin, destination, service, group):
+    def __call__(self, parcel, origin, destination, service, group,
+                 options=None):
         """
         Create a shipping order for the given parcels
 
@@ -226,8 +227,12 @@ class CreateShipment(ServiceBase):
 
         # done customs
 
-        # TODO: options
-        #options = add_child("options", delivery_spec)
+        # options
+        if options is not None:
+            options_elem = add_child("options", delivery_spec)
+            for option in options:
+                options_elem.append(option.make_xml())
+        # done options
 
         # parcel
         parcel_chars = add_child("parcel-characteristics", delivery_spec)
