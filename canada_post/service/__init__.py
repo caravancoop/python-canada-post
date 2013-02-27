@@ -2,7 +2,9 @@
 Different Canada Post Developer Program services
 """
 import logging
+from lxml import etree
 from canada_post import DEV, PROD
+from canada_post.util import InfoObject
 from canada_post.util.money import Price, get_decimal, Adjustment
 import requests
 
@@ -117,3 +119,33 @@ class Service(object):
         return Price(due=due, base=base, gst=gst, gst_pc=gst_percent,
                      pst=pst, pst_pc=pst_percent, hst=hst, hst_pc=hst_percent,
                      adjustments=adjustments)
+
+class Option(InfoObject):
+    """
+    Option for CreateShipment and possibly for GetRates
+    """
+    def __init__(self, code, amount=None, qualifier_1=None, qualifier_2=None,
+                 **kwargs):
+        self.code = code
+        self.amount = amount
+        self.qualifier_1 = qualifier_1
+        self.qualifier_2 = qualifier_2
+        super(Option, self).__init__(**kwargs)
+
+    def make_xml(self):
+        """
+        Insert this option's XML under the given XML element
+
+        :return: the created <option> lxml.Element object
+        """
+        option = etree.Element('option')
+        etree.SubElement(option, 'option-code').text = self.code
+        if self.amount is not None:
+            etree.SubElement(option, 'option-amount').text = self.amount
+        if self.qualifier_1 is not None:
+            etree.SubElement(option,
+                             'option-qualifier-1').text = self.qualifier_1
+        if self.qualifier_2 is not None:
+            etree.SubElement(option,
+                             'option-qualifier-2').text = self.qualifier_2
+        return option
