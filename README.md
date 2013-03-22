@@ -17,9 +17,9 @@ Example usage
     cpa = api.CanadaPostAPI(customer_number, api_username, api_password,
                             contract_number, dev=DEV if DEBUG else PROD)
     parcel = Parcel(weight=2, length=100, width=60, height=30)
-    origin = address.Origin(province=myprovince, address=myaddress, phone=myphone,
+    origin = Origin(province=myprovince, address=myaddress, phone=myphone,
                             city=mycity,  postal_code=myposcode, company=company_name)
-    dest =  address.Destination(country_code=dest_code, postal_code=dest_pc, province=dest_prov,
+    dest =  Destination(country_code=dest_code, postal_code=dest_pc, province=dest_prov,
                                 city=dest_city, address=dest_address)
     services = cpa.get_rates(parcel, origin, dest)
     # this returns a list of Service objects, with a bunch of data, say you select the one you want
