@@ -4,7 +4,7 @@ class AddressBase(InfoObject):
     def __init__(self, postal_code, name=None, company=None, phone=None,
                  address=None, city=None, province=None,
                  *args, **kwargs):
-        self.postal_code = postal_code.replace(" ", "")
+        self.postal_code = postal_code.replace(" ", "").upper()
         self.name = name
         self.company = company
         self.phone = phone
