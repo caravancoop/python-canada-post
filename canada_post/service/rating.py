@@ -23,7 +23,7 @@ class GetRates(ServiceBase):
         self.log.info("Getting rates for parcel: %s, from %s to %s", parcel,
                       origin, destination)
         request_tree = etree.Element(
-            'mailing-scenario', xmlns="http://www.canadapost.ca/ws/ship/rate")
+            'mailing-scenario', xmlns="http://www.canadapost.ca/ws/ship/rate-v2")
         def add_child(child_name, parent=request_tree):
             return etree.SubElement(parent, child_name)
         add_child("customer-number").text = unicode(self.auth.customer_number)
@@ -58,8 +58,8 @@ class GetRates(ServiceBase):
 
         # our XML tree is complete. On to the request
         headers = {
-            'Accept': "application/vnd.cpc.ship.rate+xml",
-            'Content-type': "application/vnd.cpc.ship.rate+xml",
+            'Accept': "application/vnd.cpc.ship.rate-v2+xml",
+            'Content-type': "application/vnd.cpc.ship.rate-v2+xml",
             "Accept-language": "en-CA",
         }
 
