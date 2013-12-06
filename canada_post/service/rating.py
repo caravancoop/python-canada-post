@@ -10,7 +10,10 @@ import requests
 
 class GetRates(ServiceBase):
     URL = "https://{server}/rs/ship/price"
-
+    headers = {'Accept': "application/vnd.cpc.ship.rate-v2+xml",
+               'Content-type': "application/vnd.cpc.ship.rate-v2+xml",
+               "Accept-language": "en-CA",
+        }
     log = logging.getLogger('canada_post.service.rating.GetRates')
 
     def get_url(self):
@@ -56,18 +59,11 @@ class GetRates(ServiceBase):
             intr = add_child("international", dest)
             add_child("country-code", intr).text = destination.country_code
 
-        # our XML tree is complete. On to the request
-        headers = {
-            'Accept': "application/vnd.cpc.ship.rate-v2+xml",
-            'Content-type': "application/vnd.cpc.ship.rate-v2+xml",
-            "Accept-language": "en-CA",
-        }
-
         url = self.get_url()
         self.log.info("Using url %s", url)
         request = str(etree.tostring(request_tree, pretty_print=self.auth.debug))
         self.log.debug("Request xml: %s", request)
-        response = requests.post(url, data=request, headers=headers,
+        response = requests.post(url, data=request, headers=self.headers,
                                  auth=self.userpass())
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)

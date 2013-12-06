@@ -75,6 +75,11 @@ class CreateShipment(ServiceBase):
     URL ="https://{server}/rs/{customer}/{mobo}/shipment"
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.CreateShipment')
+    headers = {'Accept': "application/vnd.cpc.shipment-v4+xml",
+               'Content-type': "application/vnd.cpc.shipment-v4+xml",
+               'Accept-language': "en-CA",
+        }
+
     def __init__(self, auth, url=None):
         if url:
             self.URL = url
@@ -132,7 +137,7 @@ class CreateShipment(ServiceBase):
 
         # shipment
         shipment = etree.Element(
-            "shipment", xmlns="http://www.canadapost.ca/ws/shipment")
+            "shipment", xmlns="http://www.canadapost.ca/ws/shipment-v4")
 
         # add child function
         add_child = add_child_factory(shipment)
@@ -249,8 +254,8 @@ class CreateShipment(ServiceBase):
         # TODO: notification
         #notification = add_child("notification", delivery_spec)
 
-        # TODO: print-preferences
-        #print_preferences = add_child("print-preferences", delivery_spec)
+        print_preferences = add_child("print-preferences", delivery_spec)
+        add_child("output-format", print_preferences).text = "4x6"
 
         # preferences
         preferences = add_child("preferences", delivery_spec)
@@ -270,16 +275,11 @@ class CreateShipment(ServiceBase):
         # TODO: can be CreditCard as well
         add_child("intended-method-of-payment", settlement).text = "Account"
 
-        headers = {
-            'Accept': "application/vnd.cpc.shipment-v2+xml",
-            'Content-type': "application/vnd.cpc.shipment-v2+xml",
-            'Accept-language': "en-CA",
-        }
         url = self.get_url()
         self.log.info("Using url %s", url)
         request = etree.tostring(shipment, pretty_print=self.auth.debug)
         self.log.debug("Request xml: %s", request)
-        response = requests.post(url=url, data=request, headers=headers,
+        response = requests.post(url=url, data=request, headers=self.headers,
                                  auth=self.userpass())
         self.log.info("Request returned with status %s", response.status_code)
         self.log.debug("Request returned content: %s", response.content)
@@ -304,6 +304,10 @@ class TransmitShipments(ServiceBase):
     URL ="https://{server}/rs/{customer}/{mobo}/manifest"
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.TransmitShipments')
+    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
+               'Content-Type': 'application/vnd.cpc.manifest-v4+xml',
+               'Accept-language': 'en-CA',
+        }
 
     def get_url(self):
         return self.URL.format(server=self.get_server(),
@@ -325,7 +329,7 @@ class TransmitShipments(ServiceBase):
         """
 
         transmit = etree.Element(
-            "transmit-set", xmlns="http://www.canadapost.ca/ws/manifest")
+            "transmit-set", xmlns="http://www.canadapost.ca/ws/manifest-v4")
         add_child = add_child_factory(transmit)
 
         groups = add_child('group-ids')
@@ -359,17 +363,13 @@ class TransmitShipments(ServiceBase):
             excluded = add_child('excluded-shipments')
             for shipment in excluded_shipments:
                 add_child('shipment-id', excluded).text = unicode(shipment)
-        headers = {
-            'Accept': "application/vnd.cpc.manifest-v2+xml",
-            'Content-Type': 'application/vnd.cpc.manifest-v2+xml',
-            'Accept-language': 'en-CA',
-        }
+
         url = self.get_url()
         self.log.info("Using url %s", url)
         request = etree.tostring(transmit, pretty_print=self.auth.debug)
         self.log.debug("Request xml: %s", request)
 
-        response = requests.post(url=url, data=request, headers=headers,
+        response = requests.post(url=url, data=request, headers=self.headers,
                                  auth=self.userpass())
 
         self.log.info("Request returned with status %s", response.status_code)
