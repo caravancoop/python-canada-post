@@ -304,8 +304,8 @@ class TransmitShipments(ServiceBase):
     URL ="https://{server}/rs/{customer}/{mobo}/manifest"
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.TransmitShipments')
-    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
-               'Content-Type': 'application/vnd.cpc.manifest-v4+xml',
+    headers = {'Accept': "application/vnd.cpc.manifest+xml",
+               'Content-Type': 'application/vnd.cpc.manifest+xml',
                'Accept-language': 'en-CA',
         }
 
@@ -449,7 +449,7 @@ class GetArtifact(ServiceBase):
         if not res.ok:
             res.raise_for_status()
 
-        img_temp = NamedTemporaryFile(delete=True)
+        img_temp = NamedTemporaryFile(delete=False)
         img_temp.write(res.content)
         img_temp.flush()
         return img_temp
