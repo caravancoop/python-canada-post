@@ -5,7 +5,7 @@ from canada_post import PROD, Auth
 from canada_post.service.contract_shipping import (CreateShipment, VoidShipment,
                                                    TransmitShipments,
                                                    GetManifest, GetArtifact,
-                                                   GetManifestShipments)
+                                                   GetManifestShipments, GetGroups)
 from canada_post.service.rating import (GetRates)
 
 class CanadaPostAPI(object):
@@ -20,3 +20,4 @@ class CanadaPostAPI(object):
         self.get_manifest = GetManifest(self.auth)
         self.get_artifact = GetArtifact(self.auth)
         self.get_manifest_shipments = GetManifestShipments(self.auth)
+        self.get_groups = GetGroups(self.auth)

@@ -293,6 +293,38 @@ class CreateShipment(ServiceBase):
                                                      ' xmlnamespace="'))
         return Shipment(xml=restree)
 
+
+class GetGroups(ServiceBase):
+    URL = "https://{server}/rs/{customer}/{mobo}/group"
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetGroups')
+    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
+               'Accept-language': 'en-CA',
+    }
+
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, *args, **kwargs):
+        self.log.info("Using url %s", url)
+        response = requests.post(self.get_url(), headers=self.headers,
+                                 auth=self.userpass())
+
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+        if not response.ok:
+            response.raise_for_status()
+
+        # this is a hack to remove the namespace from the response, since this
+        #breaks xpath lookup in lxml
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        groups = [group for group in restree.xpath('/groups/group/group-id')]
+        return groups
+
+
 class TransmitShipments(ServiceBase):
     """
     Used to specify shipments to be included in a manifest. Inclusion in a
