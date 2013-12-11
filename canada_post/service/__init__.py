@@ -59,7 +59,7 @@ class CallLinkService(ServiceBase):
         self.log.debug("Response content: %s", res.content)
         if not res.ok:
             res.raise_for_status()
-        return True
+        return res
 
 class Service(object):
     """
