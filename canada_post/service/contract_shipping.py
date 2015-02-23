@@ -466,15 +466,29 @@ class VoidShipment(CallLinkService):
     method_name = 'delete'
 
 
-class GetGroups(CallLinkService):
+class GetGroups(ServiceBase):
+    URL = 'https://{server}/rs/{customer}/{mobo}/group'
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetGroups')
-    link_rel = 'group'
-    method_name = 'get'
+    headers = {'Accept': 'application/vnd.cpc.manifest-v4+xml',
+               'Accept-language': 'en-CA'}
 
-    def __call__(self, shipment):
-        import ipdb; ipdb.set_trace()
-        response = super(GetGroups, self).__call__(shipment)
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, *args, **kwargs):
+        url = self.get_url()
+        self.log.info("Using url %s", url)
+        response = requests.post(url, headers=self.headers,
+                                 auth=self.userpass())
+
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+        if not response.ok:
+            response.raise_for_status()
+
         restree = etree.XML(response.content.replace(' xmlns="',
                                                      ' xmlnamespace="'))
         groups = restree.xpath('/groups/group/group-id')
