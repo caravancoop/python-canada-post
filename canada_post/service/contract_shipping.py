@@ -392,9 +392,15 @@ class GetManifest(ServiceBase):
     """
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetManifest')
+    
+    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
+               'Content-Type': 'application/vnd.cpc.manifest-v4+xml',
+               'Accept-language': 'en-CA',
+        }
+
     def __call__(self, link):
         self.log.info("Getting manifest from link %s", link)
-        response = requests.get(link['href'], auth=self.userpass())
+        response = requests.get(link['href'], auth=self.userpass(), headers=self.headers)
         self.log.info("Canada Post returned with status code %d",
                       response.status_code)
         self.log.debug("Canada Post returned with content %s", response.content)
