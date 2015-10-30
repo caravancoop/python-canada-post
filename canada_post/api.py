@@ -2,7 +2,8 @@
 Central API module
 """
 from canada_post import PROD, Auth
-from canada_post.service.contract_shipping import (CreateShipment, VoidShipment,
+from canada_post.service.contract_shipping import (CreateShipment, GetShipment,
+                                                   VoidShipment,
                                                    TransmitShipments,
                                                    GetManifest, GetArtifact,
                                                    GetManifestShipments, GetGroups)
@@ -15,6 +16,7 @@ class CanadaPostAPI(object):
                          dev)
         self.get_rates = GetRates(self.auth)
         self.create_shipment = CreateShipment(self.auth)
+        self.get_shipment = GetShipment(self.auth)
         self.void_shipment = VoidShipment(self.auth)
         self.transmit_shipments = TransmitShipments(self.auth)
         self.get_manifest = GetManifest(self.auth)

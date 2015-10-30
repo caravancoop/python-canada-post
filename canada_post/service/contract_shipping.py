@@ -75,8 +75,8 @@ class CreateShipment(ServiceBase):
     URL ="https://{server}/rs/{customer}/{mobo}/shipment"
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.CreateShipment')
-    headers = {'Accept': "application/vnd.cpc.shipment-v4+xml",
-               'Content-type': "application/vnd.cpc.shipment-v4+xml",
+    headers = {'Accept': "application/vnd.cpc.shipment-v7+xml",
+               'Content-type': "application/vnd.cpc.shipment-v7+xml",
                'Accept-language': "en-CA",
         }
 
@@ -137,7 +137,7 @@ class CreateShipment(ServiceBase):
 
         # shipment
         shipment = etree.Element(
-            "shipment", xmlns="http://www.canadapost.ca/ws/shipment-v4")
+            "shipment", xmlns="http://www.canadapost.ca/ws/shipment-v7")
 
         # add child function
         add_child = add_child_factory(shipment)
@@ -293,6 +293,32 @@ class CreateShipment(ServiceBase):
                                                      ' xmlnamespace="'))
         return Shipment(xml=restree)
 
+class GetShipment(ServiceBase):
+    URL = 'https://{server}/rs/000{customer}/000{mobo}/shipment'
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetShipment')
+    headers = {'Accept': 'application/vnd.cpc.shipment-v7+xml',
+               'Accept-language': 'en-CA'}
+
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, shipment_id):
+        url = self.get_url() + '/' + str(shipment_id)
+        self.log.info("Using url %s", url)
+        response = requests.get(url, headers=self.headers,
+                                 auth=self.userpass())
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+
+        if not response.ok:
+            response.raise_for_status()
+
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        return restree
 
 class TransmitShipments(ServiceBase):
     """
@@ -305,8 +331,8 @@ class TransmitShipments(ServiceBase):
     URL ="https://{server}/rs/{customer}/{mobo}/manifest"
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.TransmitShipments')
-    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
-               'Content-Type': 'application/vnd.cpc.manifest-v4+xml',
+    headers = {'Accept': "application/vnd.cpc.manifest-v7+xml",
+               'Content-Type': 'application/vnd.cpc.manifest-v7+xml',
                'Accept-language': 'en-CA',
         }
 
@@ -330,7 +356,7 @@ class TransmitShipments(ServiceBase):
         """
 
         transmit = etree.Element(
-            "transmit-set", xmlns="http://www.canadapost.ca/ws/manifest-v4")
+            "transmit-set", xmlns="http://www.canadapost.ca/ws/manifest-v7")
         add_child = add_child_factory(transmit)
 
         groups = add_child('group-ids')
@@ -392,9 +418,9 @@ class GetManifest(ServiceBase):
     """
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetManifest')
-    
-    headers = {'Accept': "application/vnd.cpc.manifest-v4+xml",
-               'Content-Type': 'application/vnd.cpc.manifest-v4+xml',
+
+    headers = {'Accept': "application/vnd.cpc.manifest-v7+xml",
+               'Content-Type': 'application/vnd.cpc.manifest-v7+xml',
                'Accept-language': 'en-CA',
         }
 
@@ -417,11 +443,15 @@ class GetManifestShipments(ServiceBase):
     """
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetManifestShipments')
+    headers = {'Accept': "application/vnd.cpc.shipment-v7+xml",
+               'Accept-language': 'en-CA',
+        }
     def __call__(self, manifest):
         self.log.info("Getting shipments for manifest %s", str(manifest))
         link = manifest.links['manifestShipments']['href']
         self.log.info("Using link %s", link)
-        response = requests.get(link, auth=self.userpass())
+        response = requests.get(link, headers=self.headers,
+                                auth=self.userpass())
         self.log.info("Canada Post returned with status code %d",
                       response.status_code)
         self.log.debug("CanadaPost returned with content: %s", response.content)
@@ -476,7 +506,7 @@ class GetGroups(ServiceBase):
     URL = 'https://{server}/rs/{customer}/{mobo}/group'
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetGroups')
-    headers = {'Accept': 'application/vnd.cpc.manifest-v4+xml',
+    headers = {'Accept': 'application/vnd.cpc.shipment-v7+xml',
                'Accept-language': 'en-CA'}
 
     def get_url(self):
@@ -487,7 +517,7 @@ class GetGroups(ServiceBase):
     def __call__(self, *args, **kwargs):
         url = self.get_url()
         self.log.info("Using url %s", url)
-        response = requests.post(url, headers=self.headers,
+        response = requests.get(url, headers=self.headers,
                                  auth=self.userpass())
 
         self.log.info("Request returned with status %s", response.status_code)
