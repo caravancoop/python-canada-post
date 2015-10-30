@@ -491,7 +491,7 @@ class GetGroups(ServiceBase):
     def __call__(self, *args, **kwargs):
         url = self.get_url()
         self.log.info("Using url %s", url)
-        response = requests.post(url, headers=self.headers,
+        response = requests.get(url, headers=self.headers,
                                  auth=self.userpass())
 
         self.log.info("Request returned with status %s", response.status_code)
