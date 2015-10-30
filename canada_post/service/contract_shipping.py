@@ -294,7 +294,7 @@ class CreateShipment(ServiceBase):
         return Shipment(xml=restree)
 
 class GetShipment(ServiceBase):
-    URL = 'https://{server}/rs/000{customer}/000{mobo}/shipment'
+    URL = 'https://{server}/rs/{customer}/{mobo}/shipment'
     log = logging.getLogger('canada_post.service.contract_shipping'
                             '.GetShipment')
     headers = {'Accept': 'application/vnd.cpc.shipment-v7+xml',
