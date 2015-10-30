@@ -293,6 +293,32 @@ class CreateShipment(ServiceBase):
                                                      ' xmlnamespace="'))
         return Shipment(xml=restree)
 
+class GetShipment(ServiceBase):
+    URL = 'https://{server}/rs/000{customer}/000{mobo}/shipment'
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetShipment')
+    headers = {'Accept': 'application/vnd.cpc.shipment-v7+xml',
+               'Accept-language': 'en-CA'}
+
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, shipment_id):
+        url = self.get_url() + '/' + str(shipment_id)
+        self.log.info("Using url %s", url)
+        response = requests.get(url, headers=self.headers,
+                                 auth=self.userpass())
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+
+        if not response.ok:
+            response.raise_for_status()
+
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+        return restree
 
 class TransmitShipments(ServiceBase):
     """
