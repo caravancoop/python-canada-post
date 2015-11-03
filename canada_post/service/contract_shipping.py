@@ -466,6 +466,46 @@ class GetManifestShipments(ServiceBase):
             shipments.append(os.path.basename(url))
         return shipments
 
+class GetManifests(ServiceBase):
+    """
+    Get the list of links for manifests within a date range.
+    """
+    URL = 'https://{server}/rs/{customer}/{mobo}/manifest'
+    log = logging.getLogger('canada_post.service.contract_shipping'
+                            '.GetManifests')
+    headers = {'Accept': 'application/vnd.cpc.manifest-v7+xml',
+               'Accept-language': 'en-CA'}
+
+    def get_url(self):
+        return self.URL.format(server=self.get_server(),
+                               customer=self.auth.customer_number,
+                               mobo=self.auth.customer_number)
+
+    def __call__(self, start_date, end_date=None):
+        """
+        Args:
+            start_date: datetime.date instance
+            end_date: datetime.date instance. If None, today's date is assumed.
+        """
+        start = start_date.strftime('%Y%m%d')
+        end = end_date.strftime('%Y%m%d') if end_date else ''
+        url = self.get_url() + '?start={start}&end={end}'.format(start=start,
+                                                                 end=end)
+        self.log.info("Using url %s", url)
+        response = requests.get(url, headers=self.headers,
+                                 auth=self.userpass())
+        self.log.info("Request returned with status %s", response.status_code)
+        self.log.debug("Request returned content: %s", response.content)
+
+        if not response.ok:
+            response.raise_for_status()
+
+        restree = etree.XML(response.content.replace(' xmlns="',
+                                                     ' xmlnamespace="'))
+
+        links = [dict(link.attrib) for link in restree.getchildren()]
+        return links
+
 class GetArtifact(ServiceBase):
     """
     Download a PDF link from a Shipment or Manifest object, and return a
