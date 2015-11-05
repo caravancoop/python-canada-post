@@ -11,19 +11,19 @@ class AddressBase(InfoObject):
 
         if address:
             if isinstance(address, tuple):
-                assert all(len(x) < 44 for x in address), ("Street address "
+                assert all(len(x) <= 44 for x in address), ("Street address "
                                                            "must be split in "
                                                            "two 44 characters "
                                                            "groups")
                 self.address1 = address[0]
                 self.address2 = address[1]
             else:
-                assert len(address) < 88, ("Street address can have up to 88 "
+                assert len(address) <= 88, ("Street address can have up to 88 "
                                            "characters")
                 last_space_ix = address.rfind(" ", 0, 44)
                 self.address1 = address[:last_space_ix].strip()
                 self.address2 = address[last_space_ix:].strip()
-                assert len(self.address2) < 44, ("Must be able to split "
+                assert len(self.address2) <= 44, ("Must be able to split "
                                                  "address in two 44 characters "
                                                  "groups")
         else:
@@ -31,7 +31,7 @@ class AddressBase(InfoObject):
 
         self.city = city
         if city:
-            assert len(city) < 40, ("City name must have up to 40 characters")
+            assert len(city) <= 40, ("City name must have up to 40 characters")
 
         self.province = province
 
