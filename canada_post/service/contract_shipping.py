@@ -160,7 +160,7 @@ class CreateShipment(ServiceBase):
                               "Contact Shipping Service")
         add_child("contact-phone", sender).text = origin.phone
 
-        #destination details, first assertions
+        # sender details, first assertions
         assert any((origin.address1, origin.address2)), (
             "The sender needs an address to Create Shipping")
         assert origin.city, "Need the sender's city to Create Shipping"
