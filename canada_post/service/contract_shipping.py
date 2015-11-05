@@ -119,7 +119,7 @@ class CreateShipment(ServiceBase):
         return addr_detail
 
     def __call__(self, parcel, origin, destination, service, group,
-                 options=None):
+                 options=None, references=None):
         """
         Create a shipping order for the given parcels
 
@@ -130,6 +130,8 @@ class CreateShipment(ServiceBase):
             the code parameter set up
         group: must be a string or unicode defining the parcel group that this
             parcel should be added to
+        options: list of canada_post.service.Option instances
+        references: canada_post.util.references References instance
         """
         debug = "( DEBUG )" if self.auth.debug else ""
         self.log.info(("Create shipping for parcel %s, from %s to %s{debug}"
@@ -264,6 +266,11 @@ class CreateShipment(ServiceBase):
         # shippings
         add_child("show-postage-rate", preferences).text = "false"
         add_child("show-insured-value", preferences).text = "false"
+
+        # references
+        if references is not None:
+            delivery_spec.append(references.make_xml())
+        # done references
 
         # settlement-info
         settlement = add_child("settlement-info", delivery_spec)
