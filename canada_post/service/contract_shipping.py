@@ -110,7 +110,7 @@ class CreateShipment(ServiceBase):
         add_child("country-code", addr_detail).text = address.country_code
         if address.postal_code:
             add_child("postal-zip-code",
-                      addr_detail).text = unicode(address.postal_code)
+                      addr_detail).text = str(address.postal_code)
         else:
             assert address.country_code not in ("US", "CA"), (
                 u"Addresses within {} require "
@@ -143,7 +143,7 @@ class CreateShipment(ServiceBase):
         add_child = add_child_factory(shipment)
 
         add_child("group-id").text = group
-        add_child("requested-shipping-point").text = unicode(origin.postal_code)
+        add_child("requested-shipping-point").text = str(origin.postal_code)
         delivery_spec = add_child("delivery-spec")
         add_child("service-code", delivery_spec).text = service.code
 
@@ -223,12 +223,12 @@ class CreateShipment(ServiceBase):
             for item in parcel.items:
                 item_elem = add_child('item', sku_list)
                 add_child('customs-number-of-units',
-                          item_elem).text = unicode(item.amount)
+                          item_elem).text = str(item.amount)
                 add_child('customs-description',
                           item_elem).text = item.description
-                add_child('unit-weight', item_elem).text = unicode(item.weight)
+                add_child('unit-weight', item_elem).text = str(item.weight)
                 add_child('customs-value-per-unit',
-                          item_elem).text = unicode(item.price)
+                          item_elem).text = str(item.price)
 
         # done customs
 
@@ -241,12 +241,12 @@ class CreateShipment(ServiceBase):
 
         # parcel
         parcel_chars = add_child("parcel-characteristics", delivery_spec)
-        add_child("weight", parcel_chars).text = unicode(parcel.weight)
+        add_child("weight", parcel_chars).text = str(parcel.weight)
         if all((parcel.length > 0, parcel.width > 0, parcel.height > 0)):
             dims = add_child("dimensions", parcel_chars)
-            add_child("length", dims).text = unicode(parcel.length)
-            add_child("width", dims).text = unicode(parcel.width)
-            add_child("height", dims).text = unicode(parcel.height)
+            add_child("length", dims).text = str(parcel.length)
+            add_child("width", dims).text = str(parcel.width)
+            add_child("height", dims).text = str(parcel.height)
         add_child("unpackaged", parcel_chars).text = ("true"
                                                       if parcel.unpackaged
                                                       else "false")
@@ -289,8 +289,8 @@ class CreateShipment(ServiceBase):
 
         # this is a hack to remove the namespace from the response, since this
         #breaks xpath lookup in lxml
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         return Shipment(xml=restree)
 
 class GetShipment(ServiceBase):
@@ -316,8 +316,8 @@ class GetShipment(ServiceBase):
         if not response.ok:
             response.raise_for_status()
 
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         return restree
 
 class TransmitShipments(ServiceBase):
@@ -361,9 +361,9 @@ class TransmitShipments(ServiceBase):
 
         groups = add_child('group-ids')
         for group_id in group_ids:
-            add_child('group-id', groups).text = unicode(group_id)
+            add_child('group-id', groups).text = str(group_id)
 
-        add_child('requested-shipping-point').text = unicode(origin.postal_code)
+        add_child('requested-shipping-point').text = str(origin.postal_code)
 
         add_child('detailed-manifests').text = 'true' if detailed else 'false'
 
@@ -375,21 +375,21 @@ class TransmitShipments(ServiceBase):
         add_child('manifest-company', address).text = origin.company
         if name:
             add_child('manifest-name', address).text = name
-        add_child('phone-number', address).text = unicode(origin.phone)
+        add_child('phone-number', address).text = str(origin.phone)
         # details start
         details = add_child('address-details', address)
         add_child('address-line-1', details).text = origin.address1
         add_child('address-line-2', details).text = origin.address2
         add_child('city', details).text = origin.city
         add_child('prov-state', details).text = origin.province
-        add_child('postal-zip-code', details).text = unicode(origin.postal_code)
+        add_child('postal-zip-code', details).text = str(origin.postal_code)
         #details end
         # address end
 
         if excluded_shipments:
             excluded = add_child('excluded-shipments')
             for shipment in excluded_shipments:
-                add_child('shipment-id', excluded).text = unicode(shipment)
+                add_child('shipment-id', excluded).text = str(shipment)
 
         url = self.get_url()
         self.log.info("Using url %s", url)
@@ -407,8 +407,8 @@ class TransmitShipments(ServiceBase):
 
         # this is a hack to remove the namespace from the response, since this
         #breaks xpath lookup in lxml
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         links = [dict(link.attrib) for link in restree.getchildren()]
         return links
 
@@ -433,8 +433,8 @@ class GetManifest(ServiceBase):
         if not response.ok:
             response.raise_for_status()
 
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         return Manifest(xml=restree)
 
 class GetManifestShipments(ServiceBase):
@@ -458,8 +458,8 @@ class GetManifestShipments(ServiceBase):
         if not response.ok:
             response.raise_for_status()
 
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         shipments = []
         for link in restree.findall('link'):
             url = link.attrib['href']
@@ -525,7 +525,7 @@ class GetGroups(ServiceBase):
         if not response.ok:
             response.raise_for_status()
 
-        restree = etree.XML(response.content.replace(' xmlns="',
-                                                     ' xmlnamespace="'))
+        restree = etree.XML(response.content.decode('utf-8').replace(' xmlns="',
+                                                     ' xmlnamespace="').encode('utf-8'))
         groups = restree.xpath('/groups/group/group-id')
         return [group.text for group in groups]

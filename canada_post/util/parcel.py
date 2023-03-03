@@ -40,7 +40,7 @@ class Parcel(InfoObject):
         self.items = items or []
         super(Parcel, self).__init__(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Parcel {}kg-{}x{}x{}".format(self.weight,
                                               self.length,
                                               self.width,
